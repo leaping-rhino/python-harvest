@@ -306,6 +306,25 @@ class Harvest(object):
     def update(self, entry_id, data):
         return self._post('/daily/update/{0}'.format(entry_id), data)
 
+    ## Invoices
+
+    def invoices(self, page=None):
+        args = []
+        argstr = ""
+        if page:
+            args.append('page={}'.format(page))
+            # allow querying of older invoices -- by default only the first
+            # 50 invoices are returned.
+            # GET /projects?page=2
+        if args:
+            argstr = "?" + "&".join(args)
+        return self._get('/invoices' + argstr)
+
+    def get_invoice(self, invoice_id):
+        return self._get('/invoices/{}'.format(invoice_id))
+
+
+
     def _get(self, path='/', data=None):
         return self._request('GET', path, data)
 
@@ -354,6 +373,8 @@ class Harvest(object):
             return resp
         except Exception, e:
             raise HarvestError(e)
+
+
 
 
 def status():
