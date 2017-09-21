@@ -1,11 +1,29 @@
+# Copyright 2012-2017 Lionheart Software LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import json
 import requests
 from requests_oauthlib import OAuth2Session
-from urlparse import urlparse
-from base64   import b64encode as enc64
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
+
+from base64 import b64encode as enc64
 
 HARVEST_STATUS_URL = 'http://www.harveststatus.com/api/v2/status.json'
-
 
 class HarvestError(Exception):
     pass
@@ -17,7 +35,7 @@ class Harvest(object):
         parsed = urlparse(uri)
         if not (parsed.scheme and parsed.netloc):
             raise HarvestError('Invalid harvest uri "{0}".'.format(uri))
-            
+
         if refresh_token:
             self.__headers = {
                 "Content-Type": 'application/x-www-form-urlencoded',
@@ -34,7 +52,7 @@ class Harvest(object):
             self.__email    = email.strip()
             self.__password = password
             if put_auth_in_header:
-                self.__headers['Authorization'] = 'Basic {0}'.format(enc64('{self.email}:{self.password}'.format(self=self)))
+                self.__headers['Authorization'] = 'Basic {0}'.format(enc64("{self.email}:{self.password}".format(self=self).encode("utf8")))
         elif client_id and token:
             self.__auth         = 'OAuth2'
             self.__client_id    = client_id
@@ -371,7 +389,7 @@ class Harvest(object):
                 except:
                     return resp
             return resp
-        except Exception, e:
+        except Exception as e:
             raise HarvestError(e)
 
 
