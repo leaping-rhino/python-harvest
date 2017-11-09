@@ -16,14 +16,17 @@ import json
 import requests
 from requests_oauthlib import OAuth2Session
 
+from base64 import b64encode
+
 try:
     from urllib.parse import urlparse
 except ImportError:
     from urlparse import urlparse
 
-from base64 import b64encode as enc64
-
 HARVEST_STATUS_URL = 'http://www.harveststatus.com/api/v2/status.json'
+
+def enc64(txt):
+    return b64encode(bytearray(txt, 'utf-8')).decode('ascii')
 
 class HarvestError(Exception):
     pass
@@ -53,6 +56,7 @@ class Harvest(object):
             self.__password = password
             if put_auth_in_header:
                 self.__headers['Authorization'] = 'Basic {0}'.format(enc64("{self.email}:{self.password}".format(self=self).encode("utf8")))
+                #self.__headers['Authorization'] = 'Basic {0}'.format(enc64( '{self.email}:{self.password}'.format(self=self) ) )
         elif client_id and token:
             self.__auth         = 'OAuth2'
             self.__client_id    = client_id
